@@ -6,8 +6,7 @@ use App\Http\Requests\Traits\HasEmailBlindIndex;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-
-class RegisterRequest extends FormRequest
+class ForgotPasswordRequest extends FormRequest
 {
     use HasEmailBlindIndex;
     /**
@@ -26,21 +25,8 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => 'required|email',
-            'email_blind' => 'unique:users,email_blind',
-            'password' => 'required|min:8',
-            'remember' => 'nullable|boolean',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'Name is required',
-            'email.required' => 'Email is required',
-            'password.required' => 'Password is required',
-            'remember.boolean' => 'Remember me',
+            'email'       => 'required|email',
+            'email_blind' => 'required|string',
         ];
     }
 }

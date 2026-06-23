@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'blind_index_salt' => env('AUTH_BLIND_INDEX_SALT'),
+
 ];

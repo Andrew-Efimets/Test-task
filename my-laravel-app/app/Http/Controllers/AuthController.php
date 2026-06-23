@@ -21,10 +21,16 @@ class AuthController extends Controller
 
         unset($validated['remember']);
 
-        if (Auth::attempt($validated, $remember)) {
+        $attemptData = [
+            'email_blind' => $validated['email_blind'],
+            'password'    => $validated['password'],
+        ];
+
+        if (Auth::attempt($attemptData, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->route('welcome')->with('success', 'You are now logged in!');
+            return redirect()->route('welcome')
+                ->with('success', 'You are now logged in!');
         }
 
         return redirect()->back()->with('error', 'Invalid email or password');
@@ -45,7 +51,8 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('verification.notice')->with('success', 'Look to your email!');
+        return redirect()->route('verification.notice')
+            ->with('success', 'Look to your email!');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -56,7 +63,8 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login.form')->with('success', 'You are now logged out!');
+        return redirect()->route('login.form')
+            ->with('success', 'You are now logged out!');
     }
 
     public function showRegistrationForm(): View

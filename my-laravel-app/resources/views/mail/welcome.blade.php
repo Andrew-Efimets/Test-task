@@ -17,5 +17,16 @@
             </style>
         @endif
     </head>
-    <body></body>
+    <body>
+    <p style="margin: 20px">To confirm your email, click the button below:</p>
+
+    <a href="{{ $url }}"
+       style="background: #3490dc; color: white; padding: 10px 20px;
+       text-decoration: none; border-radius: 5px; margin: 20px">
+        Confirm Email
+    </a>
+
+    <p style="margin: 20px">If the button doesn't work, copy this link into your browser:</p>
+    <p style="margin: 20px">{{ $url }}</p>
+    </body>
 </html>
