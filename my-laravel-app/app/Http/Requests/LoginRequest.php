@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Traits\HasEmailBlindIndex;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
+    use HasEmailBlindIndex;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -24,6 +26,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
+            'email_blind' => 'required|string',
             'password' => 'required',
             'remember' => 'nullable|boolean',
         ];
