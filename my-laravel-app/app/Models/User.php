@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Mail\ResetPasswordMail;
 use App\Mail\Verify;
+use App\Models\Chats\Chat;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
@@ -48,6 +50,13 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function chats(): BelongsToMany
+    {
+        return $this->belongsToMany(Chat::class, 'chat_participants', 'user_id', 'chat_id')
+            ->withPivot('role', 'last_read_at')
+            ->withTimestamps();
     }
 
     public static function generateEmailBlindIndex(string $email): string

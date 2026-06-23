@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Chats;
 
-use App\Http\Requests\Traits\HasEmailBlindIndex;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ForgotPasswordRequest extends FormRequest
+class ParticipantRequest extends FormRequest
 {
-    use HasEmailBlindIndex;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,8 +23,7 @@ class ForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'       => 'required|email',
-            'email_blind' => 'required|string',
+            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 }

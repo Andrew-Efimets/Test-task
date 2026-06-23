@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Auth;
 
 use App\Http\Requests\Traits\HasEmailBlindIndex;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResetPasswordRequest extends FormRequest
+class ForgotPasswordRequest extends FormRequest
 {
     use HasEmailBlindIndex;
     /**
@@ -25,10 +25,8 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token'                 => 'required|string',
-            'email'                 => 'required|email',
-            'email_blind'           => 'required|string',
-            'password'              => 'required|string|min:8|confirmed',
+            'email'       => 'required|email',
+            'email_blind' => 'required|string',
         ];
     }
 }

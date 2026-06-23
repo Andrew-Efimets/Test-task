@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Chats\ChatController;
+use App\Http\Controllers\Chats\MessageController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,6 +29,8 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
     ->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
     ->name('password.update');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -45,4 +48,25 @@ Route::middleware(['auth'])->group(function () {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('message', 'New link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');
+
+    Route::prefix('chats')->name('chats.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])
+            ->name('index');
+        Route::get('/{chat}', [ChatController::class, 'show'])
+            ->name('show');
+        Route::post('/private', [ChatController::class, 'storePrivate'])
+            ->name('private.store');
+        Route::post('/group', [ChatController::class, 'storeGroup'])
+            ->name('group.store');
+        Route::delete('/{chat}', [ChatController::class, 'destroyChat'])
+            ->name('destroy');
+        Route::post('/{chat}/participants', [ChatController::class, 'addParticipant'])
+            ->name('participants.add');
+        Route::post('/{chat}/messages', [MessageController::class, 'store'])
+            ->name('messages.store');
+        Route::put('/messages/{message}', [MessageController::class, 'update'])
+            ->name('messages.update');
+        Route::delete('/messages/{message}', [MessageController::class, 'destroy'])
+            ->name('messages.destroy');
+    });
 });
