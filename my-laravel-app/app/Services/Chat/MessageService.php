@@ -2,6 +2,9 @@
 
 namespace App\Services\Chat;
 
+use App\Events\Chats\MessageDeleted;
+use App\Events\Chats\MessageSent;
+use App\Events\Chats\MessageUpdated;
 use App\Models\Chats\Chat;
 use App\Models\Chats\Message;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +24,7 @@ class MessageService
             throw new \Exception('You are not a participant.');
         }
 
-        return DB::transaction(function () use ($chat, $userId, $body) {
+        $message = DB::transaction(function () use ($chat, $userId, $body) {
 
             $message = Message::create([
                 'chat_id' => $chat->id,
@@ -36,6 +39,10 @@ class MessageService
 
             return $message;
         });
+
+        event(new MessageSent($message));
+
+        return $message;
     }
 
     /**
@@ -52,6 +59,8 @@ class MessageService
         $message->update([
             'body' => trim($newBody),
         ]);
+
+        event(new MessageUpdated($message));
 
         return $message;
     }
@@ -75,6 +84,10 @@ class MessageService
             throw new \Exception('No rights to delete messages.');
         }
 
+        $chatId = $message->chat_id;
+
         $message->delete();
+
+        event(new MessageDeleted($messageId, $chatId));
     }
 }

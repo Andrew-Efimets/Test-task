@@ -42,7 +42,7 @@
             </div>
         @endif
 
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
 
             <div class="flex justify-center pb-2">
                 {{ $messages->links() }}
@@ -57,7 +57,8 @@
                         </span>
                     </div>
                 @else
-                    <div class="flex flex-col {{ $message->user_id === Auth::id() ? 'items-end' : 'items-start' }}">
+                    <div id="msg-container-{{ $message->id }}"
+                         class="flex flex-col {{ $message->user_id === Auth::id() ? 'items-end' : 'items-start' }}">
                         <div class="max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm border
                             {{ $message->user_id === Auth::id()
                                 ? 'bg-gray-600 border-gray-600 text-white rounded-br-none'
@@ -69,7 +70,7 @@
                                 </span>
                             @endif
 
-                            <p class="text-sm break-words whitespace-pre-wrap leading-relaxed">
+                            <p id="msg-body-{{ $message->id }}" class="text-sm break-words whitespace-pre-wrap leading-relaxed">
                                 {{ $message->body }}
                             </p>
 
@@ -144,5 +145,59 @@
     </div>
 
 </div>
+
+
+<script type="module">
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatId = "{{ $chat->id }}";
+        const currentUserId = parseInt("{{ Auth::id() }}");
+        const container = document.getElementById('messages-container');
+
+        window.Echo.private(`chat.${chatId}`)
+            .listen('Chats\\MessageSent', (data) => {
+                if (parseInt(data.user_id) === currentUserId) {
+                    return;
+                }
+                const messageHtml = `
+                    <div id="msg-container-${data.id}" class="flex flex-col items-start animate-fade-in">
+                        <div class="max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm border bg-gray-100 border-gray-200 text-gray-800 rounded-bl-none">
+                            <span class="block text-xs font-bold mb-1 opacity-75">
+                                ${data.user_name}
+                            </span>
+                            <p id="msg-body-${data.id}" class="text-sm break-words whitespace-pre-wrap leading-relaxed">${data.body}</p>
+                            <div id="msg-meta-${data.id}" class="flex items-center justify-end gap-1 mt-1 opacity-60 text-[10px]">
+                                <span>${data.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertAdjacentHTML('beforeend', messageHtml);
+                container.scrollTop = container.scrollHeight;
+            })
+            .listen('Chats\\MessageUpdated', (data) => {
+                const msgElement = document.getElementById(`msg-body-${data.id}`);
+
+                if (msgElement) {
+                    msgElement.innerText = data.body;
+                    const metaContainer = document.getElementById(`msg-meta-${data.id}`) || msgElement.parentElement;
+                    if (metaContainer && !metaContainer.innerText.includes('edited')) {
+                        const editedSpan = document.createElement('span');
+                        editedSpan.className = 'text-[10px] text-gray-400 italic';
+                        editedSpan.innerText = 'edited • ';
+                        metaContainer.insertBefore(editedSpan, metaContainer.firstChild);
+                    }
+                }
+            })
+            .listen('Chats\\MessageDeleted', (data) => {
+                const msgContainer = document.getElementById(`msg-container-${data.id}`);
+                if (msgContainer) {
+                    msgContainer.remove();
+                }
+            });
+    });
+</script>
 </body>
 </html>
+
+
